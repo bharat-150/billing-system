@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QuickBill - Online Bill Generator</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="bg-gray-50 font-sans">
+    <div class="container mx-auto px-4 py-8 max-w-6xl">
+        <!-- Header Section -->
+        <header class="bg-white shadow-sm rounded-lg mb-8 p-6">
+            <div class="flex flex-col md:flex-row justify-between items-center">
+                <div class="flex items-center mb-4 md:mb-0">
+                    <img src="https://storage.googleapis.com/workspace-0f70711f-8b4e-4d94-86f1-2a93ccde5887/image/6e1992a9-56d4-459d-af9a-5baf48c8b0c6.png" alt="QuickBill logo with a document and currency symbol" class="mr-3" />
+                </div>
+                <h1 class="text-2xl font-bold text-indigo-700">QuickBill</h1>
+                <p class="text-gray-600 text-center md:text-right">
+                    Create professional bills instantly and share via WhatsApp
+                </p>
+            </div>
+        </header>
+
+        <!-- Main Content Area -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <!-- Product Entry Form -->
+            <div class="bg-white shadow-sm rounded-lg p-6">
+                <h2 class="text-xl font-semibold text-gray-800 mb-4">Add Products</h2>
+                
+                <form id="productForm" class="space-y-4">
+                    <div>
+                        <label for="productName" class="block text-sm font-medium text-gray-700">Product Name</label>
+                        <input type="text" id="productName" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500" required>
+                    </div>
+                    
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label for="productPrice" class="block text-sm font-medium text-gray-700">Price (₹)</label>
+                            <input type="number" id="productPrice" min="0.01" step="0.01" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500" required>
+                        </div>
+                        <div>
+                            <label for="productQuantity" class="block text-sm font-medium text-gray-700">Quantity</label>
+                            <input type="number" id="productQuantity" min="1" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500" required>
+                        </div>
+                    </div>
+                    
+                    <button type="submit" class="w-full bg-indigo-600 text-white py-2 px-4 rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
+                        <i class="fas fa-plus mr-2"></i> Add to Bill
+                    </button>
+                </form>
+                
+                <div id="productList" class="mt-6 space-y-2 max-h-96 overflow-y-auto">
+                    <!-- Products will be added here dynamically -->
+                </div>
+            </div>
+            
+            <!-- Bill Preview Section -->
+            <div class="bg-white shadow-sm rounded-lg p-6">
+                <h2 class="text-xl font-semibold text-gray-800 mb-4">Bill Preview</h2>
+                
+                <form id="customerForm" class="space-y-4 mb-6">
+                    <div>
+                        <label for="customerName" class="block text-sm font-medium text-gray-700">Customer Name</label>
+                        <input type="text" id="customerName" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500" required>
+                    </div>
+                    
+                    <div>
+                        <label for="customerPhone" class="block text-sm font-medium text-gray-700">WhatsApp Number</label>
+                        <div class="flex">
+                            <span class="inline-flex items-center px-3 rounded-l-md border border-r-0 border-gray-300 bg-gray-50 text-gray-500 text-sm">+91</span>
+                            <input type="tel" id="customerPhone" pattern="[0-9]{10}" maxlength="10" class="flex-1 block w-full rounded-none rounded-r-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500" placeholder="9876543210" required>
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <label for="billNotes" class="block text-sm font-medium text-gray-700">Additional Notes</label>
+                        <textarea id="billNotes" rows="2" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"></textarea>
+                    </div>
+                </form>
+                
+                <!-- Bill Items Table -->
+                <div class="overflow-x-auto">
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th scope="col" class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Item</th>
+                                <th scope="col" class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Price</th>
+                                <th scope="col" class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Qty</th>
+                                <th scope="col" class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Total</th>
+                                <th scope="col" class="relative px-3 py-3"></th>
+                            </tr>
+                        </thead>
+                        <tbody id="billItems" class="bg-white divide-y divide-gray-200">
+                            <!-- Items will be added here dynamically -->
+                        </tbody>
+                        <tfoot>
+                            <tr>
+                                <td colspan="3" class="px-3 py-3 text-right font-medium text-gray-700">Subtotal:</td>
+                                <td id="subtotal" class="px-3 py-3">₹0.00</td>
+                                <td></td>
+                            </tr>
+                            <tr class="bg-gray-50">
+                                <td colspan="3" class="px-3 py-3 text-right font-medium text-gray-700">Tax (18%):</td>
+                                <td id="tax" class="px-3 py-3">₹0.00</td>
+                                <td></td>
+                            </tr>
+                            <tr class="bg-indigo-50">
+                                <td colspan="3" class="px-3 py-3 text-right font-bold text-indigo-700">Grand Total:</td>
+                                <td id="grandTotal" class="px-3 py-3 font-bold text-indigo-700">₹0.00</td>
+                                <td></td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+                
+                <button id="sendBill" class="mt-6 w-full bg-green-600 text-white py-2 px-4 rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 flex items-center justify-center">
+                    <i class="fab fa-whatsapp mr-2 text-xl"></i> Send via WhatsApp
+                </button>
+            </div>
+        </div>
+        
+        <!-- Instructions Section -->
+        <div class="mt-8 bg-white shadow-sm rounded-lg p-6">
+            <h2 class="text-xl font-semibold text-gray-800 mb-4">How it works</h2>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div class="flex items-start">
+                    <div class="bg-indigo-100 p-3 rounded-full mr-4">
+                        <i class="fas fa-plus text-indigo-600"></i>
+                    </div>
+                    <div>
+                        <h3 class="font-medium text-gray-800">1. Add Products</h3>
+                        <p class="text-gray-600 text-sm mt-1">Enter product details including name, price, and quantity.</p>
+                    </div>
+                </div>
+                <div class="flex items-start">
+                    <div class="bg-indigo-100 p-3 rounded-full mr-4">
+                        <i class="fas fa-file-invoice text-indigo-600"></i>
+                    </div>
+                    <div>
+                        <h3 class="font-medium text-gray-800">2. Check Bill</h3>
+                        <p class="text-gray-600 text-sm mt-1">Review your automatically calculated bill.</p>
+                    </div>
+                </div>
+                <div class="flex items-start">
+                    <div class="bg-indigo-100 p-3 rounded-full mr-4">
+                        <i class="fab fa-whatsapp text-indigo-600"></i>
+                    </div>
+                    <div>
+                        <h3 class="font-medium text-gray-800">3. Send to Customer</h3>
+                        <p class="text-gray-600 text-sm mt-1">Share the bill via WhatsApp with one click.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const productForm = document.getElementById('productForm');
+            const customerForm = document.getElementById('customerForm');
+            const productList = document.getElementById('productList');
+            const billItems = document.getElementById('billItems');
+            const sendBillBtn = document.getElementById('sendBill');
+            
+            const products = [];
+            const bill = {
+                items: [],
+                subtotal: 0,
+                tax: 0,
+                total: 0
+            };
+            
+            // Add product to the list
+            productForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                const name = document.getElementById('productName').value;
+                const price = parseFloat(document.getElementById('productPrice').value);
+                const quantity = parseInt(document.getElementById('productQuantity').value);
+                
+                if (name && !isNaN(price) && !isNaN(quantity)) {
+                    const product = { name, price, quantity };
+                    products.push(product);
+                    updateProductList();
+                    updateBill(product);
+                    productForm.reset();
+                }
+            });
+            
+            // Update product list UI
+            function updateProductList() {
+                productList.innerHTML = '';
+                
+                if (products.length === 0) {
+                    productList.innerHTML = '<p class="text-gray-500 text-center py-4">No products added yet</p>';
+                    return;
+                }
+                
+                products.forEach((product, index) => {
+                    const productDiv = document.createElement('div');
+                    productDiv.className = 'flex justify-between items-center p-2 bg-gray-50 rounded';
+                    productDiv.innerHTML = `
+                        <div>
+                            <span class="font-medium">${product.name}</span>
+                            <span class="text-sm text-gray-500 ml-2">₹${product.price.toFixed(2)} x ${product.quantity}</span>
+                        </div>
+                        <button onclick="removeProduct(${index})" class="text-red-500 hover:text-red-700">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    `;
+                    productList.appendChild(productDiv);
+                });
+            }
+            
+            // Update bill details
+            function updateBill(product) {
+                bill.items.push({
+                    name: product.name,
+                    price: product.price,
+                    quantity: product.quantity,
+                    total: product.price * product.quantity
+                });
+                
+                calculateTotals();
+                renderBill();
+            }
+            
+            // Calculate subtotal and total
+            function calculateTotals() {
+                bill.subtotal = bill.items.reduce((sum, item) => sum + item.total, 0);
+                bill.total = bill.subtotal;
+            }
+            
+            // Render bill table
+            function renderBill() {
+                billItems.innerHTML = '';
+                
+                if (bill.items.length === 0) {
+                    document.getElementById('subtotal').textContent = '₹0.00';
+                    document.getElementById('tax').textContent = '₹0.00';
+                    document.getElementById('grandTotal').textContent = '₹0.00';
+                    return;
+                }
+                
+                bill.items.forEach((item, index) => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td class="px-3 py-2 whitespace-nowrap text-sm font-medium text-gray-900">${item.name}</td>
+                        <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-500">₹${item.price.toFixed(2)}</td>
+                        <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-500">${item.quantity}</td>
+                        <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-500">₹${item.total.toFixed(2)}</td>
+                        <td class="px-3 py-2 whitespace-nowrap text-right text-sm font-medium">
+                            <button onclick="removeBillItem(${index})" class="text-red-500 hover:text-red-700">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </td>
+                    `;
+                    billItems.appendChild(row);
+                });
+                
+                document.getElementById('subtotal').textContent = `₹${bill.subtotal.toFixed(2)}`;
+                document.getElementById('grandTotal').textContent = `₹${bill.total.toFixed(2)}`;
+            }
+            
+            // Remove product from list and bill
+            window.removeProduct = function(index) {
+                products.splice(index, 1);
+                bill.items.splice(index, 1);
+                calculateTotals();
+                updateProductList();
+                renderBill();
+            };
+            
+            // Remove item from bill (alias for removeProduct)
+            window.removeBillItem = function(index) {
+                removeProduct(index);
+            };
+            
+            // Send bill via WhatsApp
+            sendBillBtn.addEventListener('click', function() {
+                if (!customerForm.checkValidity()) {
+                    customerForm.reportValidity();
+                    return;
+                }
+                
+                if (bill.items.length === 0) {
+                    alert('Please add at least one product to the bill');
+                    return;
+                }
+                
+                const customerName = document.getElementById('customerName').value;
+                const phoneNumber = '91' + document.getElementById('customerPhone').value;
+                const notes = document.getElementById('billNotes').value;
+                
+                // Generate bill message
+                let message = `*QuickBill Invoice for ${customerName}*%0A%0A`;
+                
+                message += '*Items:*%0A';
+                bill.items.forEach(item => {
+                    message += `➤ ${item.name} - ₹${item.price.toFixed(2)} x ${item.quantity} = ₹${item.total.toFixed(2)}%0A`;
+                });
+                
+                message += '%0A';
+                message += `*Total: ₹${bill.total.toFixed(2)}*%0A%0A`;
+                
+                if (notes) {
+                    message += `*Notes:* ${notes}%0A%0A`;
+                }
+                
+                message += 'Generated via QuickBill - Online Bill Generator';
+                
+                // Open WhatsApp with the message
+                window.open(`https://wa.me/${phoneNumber}?text=${message}`, '_blank');
+            });
+            
+            // Initialize empty lists
+            updateProductList();
+            renderBill();
+        });
+    </script>
+</body>
+</html>
